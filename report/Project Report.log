@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.14159265-2.6-1.40.21 (TeX Live 2020) (preloaded format=pdflatex 2020.4.7)  15 MAR 2021 09:04
+This is pdfTeX, Version 3.14159265-2.6-1.40.21 (TeX Live 2020) (preloaded format=pdflatex 2020.4.7)  15 MAR 2021 21:45
 entering extended mode
  restricted \write18 enabled.
  file:line:error style messages enabled.
@@ -375,9 +375,9 @@ Package pdftex.def Info: Figures/7.png  used on input line 130.
 <Figures/8.png, id=28, 381.425pt x 203.76125pt>
 File: Figures/8.png Graphic file (type png)
 <use Figures/8.png>
-Package pdftex.def Info: Figures/8.png  used on input line 146.
+Package pdftex.def Info: Figures/8.png  used on input line 145.
 (pdftex.def)             Requested size: 381.42406pt x 203.76074pt.
- (./Project Report.bbl
+ [4 <./Figures/7.png> <./Figures/8.png>] (./Project Report.bbl
 Underfull \hbox (badness 1596) in paragraph at lines 31--35
 []\OT1/ptm/m/n/8 ``Global align-ment of two se-quences - needleman-
  []
@@ -405,7 +405,18 @@ Underfull \hbox (badness 7012) in paragraph at lines 49--53
 -line]. Avail-able:
  []
 
-[4 <./Figures/7.png> <./Figures/8.png>])
+
+Underfull \hbox (badness 10000) in paragraph at lines 68--72
+[]\OT1/ptm/m/n/8 ``Hirschberg's al-go-rithm: Edit-distance re-vis-
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 68--72
+\OT1/ptm/m/n/8 ited,'' \OT1/ptm/m/it/8 Monash Uni-ver-sity\OT1/ptm/m/n/8 . [On-
+line]. Avail-able:
+ []
+
+)
 
 ** Conference Paper **
 Before submitting the final camera ready copy, remember to:
@@ -421,17 +432,17 @@ Before submitting the final camera ready copy, remember to:
 
 ] (./Project Report.aux) ) 
 Here is how much of TeX's memory you used:
- 3900 strings out of 480608
- 56246 string characters out of 5903631
- 303216 words of memory out of 5000000
- 19756 multiletter control sequences out of 15000+600000
+ 3902 strings out of 480608
+ 56288 string characters out of 5903631
+ 303222 words of memory out of 5000000
+ 19758 multiletter control sequences out of 15000+600000
  565970 words of font info for 88 fonts, out of 8000000 for 9000
  1141 hyphenation exceptions out of 8191
  30i,11n,37p,1263b,308s stack positions out of 5000i,500n,10000p,200000b,80000s
 {/usr/local/texlive/2020/texmf-dist/fonts/enc/dvips/b
 ase/8r.enc}</usr/local/texlive/2020/texmf-dist/fonts/type1/urw/times/utmr8a.pfb
 ></usr/local/texlive/2020/texmf-dist/fonts/type1/urw/times/utmri8a.pfb>
-Output written on "Project Report.pdf" (5 pages, 391541 bytes).
+Output written on "Project Report.pdf" (5 pages, 392973 bytes).
 PDF statistics:
  46 PDF objects out of 1000 (max. 8388607)
  20 compressed objects within 1 object stream

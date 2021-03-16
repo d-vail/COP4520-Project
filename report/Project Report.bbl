@@ -58,4 +58,16 @@ G.~Musso, ``Sequence alignment (needleman-wunsch, smith-waterman),''
   \url{https://www.cs.utoronto.ca/~brudno/bcb410/lec2notes.pdf}
 \BIBentrySTDinterwordspacing
 
+\bibitem{hirschberg_1975}
+D.~S. Hirschberg, ``A linear space algorithm for computing maximal common
+  subsequences,'' \emph{Communications of the ACM}, vol.~18, no.~6, p.
+  341–343, 1975.
+
+\bibitem{edit_distance_revisited}
+\BIBentryALTinterwordspacing
+``Hirschberg's algorithm: Edit-distance revisited,'' \emph{Monash University}.
+  [Online]. Available:
+  \url{http://users.monash.edu/~lloyd/tildeAlgDS/Dynamic/Hirsch/}
+\BIBentrySTDinterwordspacing
+
 \end{thebibliography}

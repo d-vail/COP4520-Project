@@ -16,7 +16,7 @@
 
 \title{Sequence Alignment and Parallel Programming}
 
-\author{\IEEEauthorblockN{1\textsuperscript{st} Daniel Vali}
+\author{\IEEEauthorblockN{1\textsuperscript{st} Daniel Vail}
 \and
 \IEEEauthorblockN{2\textsuperscript{nd} Austin Traub}
 \and
@@ -53,7 +53,7 @@ Another possible alignment for the sequences above is as follows:\\
 
 \quad A–GATC\\
 
-This example indicates that, in the second sequence, a mutation could have cause T (the first letter) to be substituted with A and C (the second letter) to be deleted. To determine which alignment is best, algorithms use a scoring system to assign a score to each possible alignment. Usually, the alignment with the highest score is the optimal alignment.
+This example indicates that, in the second sequence, a mutation could have caused T (the first letter) to be substituted with A and C (the second letter) to be deleted. To determine which alignment is best, algorithms use a scoring system to assign a score to each possible alignment. Usually, the alignment with the highest score is the optimal alignment.
 
 The existing algorithms for sequence alignment fall into three categories: dynamic programming based, heuristic-based, or a mixture of the two \cite{chaudhary_liu_matta_yang_2005}. The dynamic programming based algorithms breaks the problem into subproblems and finds a solution using the bottom up approach. In order words, the optimal alignments for the subsequences are found, and those are used to find optimal alignment for the overall sequences. The dynamic programming based solutions are computationally demanding, making them impractical when dealing with a great number of sequences \cite{chaudhary_liu_matta_yang_2005}. As a result, heuristic approaches are typically used to approximate the optimal alignment. These heuristic solutions typically use dynamic programming for only a portion of the sequence while using approximations to make the search space more manageable. The result is a faster and more efficient algorithm.
 
@@ -133,7 +133,6 @@ Once all of the scores in the score matrix and the directions in the traceback m
 \end{figure}
 
 \subsection{Parallel Version of Needleman-Wunsch}
-
 Naveed, Siddiqui, and Ahmed describes a method for parallelizing the Needleman-Wunsch algorithm \cite{naveed_siddiqui_ahmed}. This method involves two parts: the parallel initialization of the matrices used in the algorithm and the parallel calculation of the scores and directions that fill the matrices.
 
 The score and traceback matrices each can be initialized by two separate threads. One thread can set the initial row column values (-1, -2, -3, … or Left) while the other thread can set the initial first column values (-1, -2, -3, … or Up). If the sequences are stored in the matrices as headers, they also can be stored in a similar parallel manner. One thread sets the first sequence across the top and the other sets the second sequence along the side.
@@ -152,11 +151,14 @@ The limitation of this method is that the parallelization can be done only withi
 
 According to the authors, the parallel version of the Needleman-Wunsch algorithm has a runtime of O(N+M) \cite{naveed_siddiqui_ahmed}. This is an improvement over the O(MN) runtime of the original algorithm.
 
+\subsection{Hirschberg}
+
+Created in the mid 1970’s by Dan Hirschberg, Hirschberg’s algorithm is an improvement to the Needleman-Wunsch algorithm created at the beginning of the decade \cite{hirschberg_1975}. The goal of the algorithm is to find the optimal sequence alignment of two strings \cite{hirschberg_1975}. This is particularly useful in DNA and protein sequencing in the field of bioinformatics/computational biology. Hirschberg’s improvement on the Needleman-Wunsch algorithm comes from it being more spatially efficient. As stated in the above section, the runtime efficiency of Needleman-Wunsch is O(nm), where n and m are the lengths of the two strings respectively, which is the same as Hirschberg’s. The difference is that Needleman-Wunsch uses O(nm) space, since it creates an n by m matrix, where n and m are the lengths of the sequences, whereas Hirschberg’s algorithm only takes O(m) space by using binary recursion \cite{edit_distance_revisited}.
+
 \section*{Appendix}
 \setcounter{section}{0}
 
 \section{Current Progress}
-
 At this point in the project, we have thoroughly researched the main algorithms used for sequence alignment and are able to follow and understand them pretty well. We have been able to implement the sequential versions of these algorithms in Java and have them compile and output correctly. We are currently experimenting with implementing parallelized versions of the algorithms.
  
 We did face some challenges along the way. For instance, during our first attempt to parallelize the Needleman-Wunsch algorithm using the anti-diagonal technique, we were able to get the code to compile and output correctly. The runtime, however, was much worse than that of the sequential version. This was due to the way in which we were creating new threads. We were creating the threads inside a loop. We did this in an attempt to have those threads only process the current anti-diagonal. This constant spawning of new threads each iteration, however, caused a major slowdown. We were able to fix this by moving the thread creation outside the loop. We then used a spin wait to prevent the next anti-diagonal from being processed prematurely.
