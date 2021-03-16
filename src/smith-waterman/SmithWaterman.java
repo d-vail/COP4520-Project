@@ -136,5 +136,7 @@ public class SmithWaterman
 
     Alignment result = smithWaterman(seqA, seqB, SubstitutionMatrixType.IDENTITY, 
       GapPenaltyType.CONSTANT, gapPenalty);
+    
+    result.print();
   }
 }
