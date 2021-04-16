@@ -25,8 +25,9 @@
 
 \maketitle
 
-% \begin{abstract}
-% \end{abstract}
+\begin{abstract}
+...
+\end{abstract}
 
 \section{Introduction}
 The purpose of this project is to explore the algorithms and related parallel programming techniques used in sequence alignment. Sequence alignment is a process in bioinformatics whereby DNA, RNA, or protein is aligned in way that produces an optimal match between the residues of the molecules being aligned. DNA and RNA are made of nucleotides, and proteins are made of amino acids. Nucleotides and amino acids are represented as letters, and it is the sequences of those letters that are being aligned.
@@ -41,17 +42,15 @@ What makes the sequence alignment problem difficult is the size of the sequences
 
 The following is an example sequence alignment for the sequences TCGATA and AGATC:\\
 
-\quad TCGATA
-
-\quad –AGATC\\
+\hspace*{1em}TCGATA\\
+\hspace*{2em}–AGATC\\
  
 The dash before the letter A in the second sequence in the alignment represents a gap. Gaps are indicative of insertions or deletions. Sequences may have been the same at some point in time and ended up diverging through mutations involving substitutions, insertions, or deletions \cite{settles_2008}. For example, the second sequence above could have undergone a mutation where T (the first letter) was deleted and C (the second letter) was substituted with an A.
 
 Another possible alignment for the sequences above is as follows:\\
 
-\quad TCGATA
-
-\quad A–GATC\\
+\hspace*{1em}TCGATA\\
+\hspace*{2em}A–GATC\\
 
 This example indicates that, in the second sequence, a mutation could have caused T (the first letter) to be substituted with A and C (the second letter) to be deleted. To determine which alignment is best, algorithms use a scoring system to assign a score to each possible alignment. Usually, the alignment with the highest score is the optimal alignment.
 
@@ -60,7 +59,7 @@ The existing algorithms for sequence alignment fall into three categories: dynam
 The focus of the project is to only explore existing sequential and concurrent algorithms for sequence alignment based on dynamic programming.
 
 \section{Goals}
-As stated before, the goal of this project is the explore existing sequential and concurrent algorithms for sequence alignment based on dynamic programming. We will attempt to improve parallelization of these algorithms through experimentation.
+As stated before, the goal of this project is the explore existing sequential and concurrent algorithms for sequence alignment based on dynamic programming. We will attempt to implement these algorithms and improve the parallelization of them through experimentation.
 
 \section{Existing Algorithms}
 The following section presents some dynamic programming based algorithms for sequence alignment. The Needleman-Wunsch algorithm is used to find global alignments. The Smith-Waterman algorithm is used to find local alignments. And the Hirschberg algorithm is a space efficient modification of the Needleman-Wunsch algorithm.
@@ -122,9 +121,8 @@ The scoring matrix is initialized by setting the top uppermost leftmost cell to 
 
 Once all of the scores in the score matrix and the directions in the traceback matrix have been determined, the traceback matrix is used to produce the most optimal alignment between the two sequences. The traceback begins at the bottommost rightmost cell. The trace then moves either left, up, or diagonally from that point on. Movement is based on the direction stored in the traceback matrix. Moving left means adding a gap to the sequence on the left of the matrix. Moving up means adding a gap to the sequence at the top of the matrix. And moving diagonally means that the two letters for that cell are aligned and no gap is to be added. The traceback ends when the topmost leftmost cell is reached. Fig.~\ref{7} shows an example traceback matrix and its final path. The corresponding optimal alignment for the sequences SEND and AND is as follows:\\
  
-\quad SEND
-
-\quad A–ND
+\hspace*{1em}SEND\\
+\hspace*{2em}A–ND
 
 \begin{figure}[htbp]
 \centerline{\scalebox{.7}{\includegraphics{Figures/7.png}}}
@@ -155,15 +153,168 @@ According to the authors, the parallel version of the Needleman-Wunsch algorithm
 
 Created in the mid 1970’s by Dan Hirschberg, Hirschberg’s algorithm is an improvement to the Needleman-Wunsch algorithm created at the beginning of the decade \cite{hirschberg_1975}. The goal of the algorithm is to find the optimal sequence alignment of two strings \cite{hirschberg_1975}. This is particularly useful in DNA and protein sequencing in the field of bioinformatics/computational biology. Hirschberg’s improvement on the Needleman-Wunsch algorithm comes from it being more spatially efficient. As stated in the above section, the runtime efficiency of Needleman-Wunsch is O(nm), where n and m are the lengths of the two strings respectively, which is the same as Hirschberg’s. The difference is that Needleman-Wunsch uses O(nm) space, since it creates an n by m matrix, where n and m are the lengths of the sequences, whereas Hirschberg’s algorithm only takes O(m) space by using binary recursion \cite{edit_distance_revisited}.
 
-\section*{Appendix}
-\setcounter{section}{0}
+\section{Experiments}
 
-\section{Current Progress}
-At this point in the project, we have thoroughly researched the main algorithms used for sequence alignment and are able to follow and understand them pretty well. We have been able to implement sequential versions of the Needleman-Wunsch and Smith-Waterman algorithms in Java and have them compile and output correctly. We are currently experimenting with a sequential implementation of the Hirschberg algorithm and parallelized versions of the three.
- 
-We did face some challenges along the way. For instance, during our first attempt to parallelize the Needleman-Wunsch algorithm using the anti-diagonal technique, we were able to get the code to compile and output correctly. The runtime, however, was much worse than that of the sequential version. This was due to the way in which we were creating new threads. We were creating the threads inside a loop. We did this in an attempt to have those threads only process the current anti-diagonal. This constant spawning of new threads each iteration, however, caused a major slowdown. We were able to fix this by moving the thread creation outside the loop. We then used a spin wait to prevent the next anti-diagonal from being processed prematurely.
- 
-Our next step for the project is to keep on experimenting and trying known techniques to improve on efficiency. We will implement additional approaches for the score matrices and gap penalties and then attempt to make the implementations non-blocking. We will also start writing down our experiments and results and add to the report. Our final goal is to possibly venture out and try some of the newer methods out there. For instance, there are implementations out there that use GPU acceleration to help with parallelization. We could possibly head in that direction.
+This section describes in detail our attempts to parallelize the algorithms described above. All of our experiments are coded using Java.
+
+\setcounter{subsection}{0}
+
+\subsection{Needleman-Wunsch}
+Naveed, Siddiqui, and Ahmed described a method to parallelize the Needleman-Wunsch algorithm in their paper but did not show an actual implementation \cite{naveed_siddiqui_ahmed}. We attempted to implement parallelized versions of the Needleman-Wunsch algorithm based on the anti-diagonal method described in their paper. The results of our experiments are described in this section.
+
+For each of our experiments, we implemented and ran a sequential version of the algorithm alongside the parallelized version to compare the runtimes between the two. The sequential version that we implemented is the dynamic programming based algorithm described in the prior section. The main part of our sequential implementation is the fillMatrices() method, which fills up both the scores matrix and traceback matrix for the two input sequences. After the initialization of the first row and first column of each matrix in the constructor, the matrices are filled from left to right starting from the top left based on the scoring system described in the prior section.
+
+Fig.~\ref{9} shows the code for our fillMatrices() method. As can be seen in the figure, three scores are calculated for each cell: one based on the adjacent left cell, one based on the adjacent top cell, and one based on the adjacent top left diagonal cell. The scores are stored in the variables \emph{left}, \emph{up}, and \emph{diagonal}. The score based on the diagonal cell depends on whether the two letters representing the current cell is a match. For example, if the letters A and A represents the cell, then we add the match score to the diagonal score. The highest score out of the three calculated scores is chosen and stored into the cell. Next, the corresponding cell in the traceback matrix is filled based on which score was chosen. For example, the character 'd' for diagonal would be stored in the cell if the max calculated score is based on the diagonal cell.
+
+\begin{figure}[htbp]
+\centerline{\scalebox{.5}{\includegraphics{Figures/9.png}}}
+\caption{The fillMatrices() method of our sequential Needleman-Wunsch implementation.}
+\label{9}
+\end{figure}
+
+The scoring scheme for each implementation is defined at the start of the program. We decided to assign +1 for each match, -1 for each mismatch, and -1 for each gap. These values are stored in variables at the start of the program.
+
+All implementations of the algorithm (both sequential and concurrent) contain the same printOptimal() method that prints the optimal alignment to the screen. Fig.~\ref{10} shows the code for this method. The method recursively traces the completed traceback matrix starting from the bottom rightmost cell of the matrix and inserts gaps into the sequences accordingly. It then recursively prints the results to the screen. Fig.~\ref{11} shows an example output. The sequences are displayed vertically. For example, the first sequence in the example output is ––GT–TA.
+
+\begin{figure}[htbp]
+\centerline{\scalebox{.5}{\includegraphics{Figures/10.png}}}
+\caption{The printOptimal() method used in all Needleman-Wunsch implementations.}
+\label{10}
+\end{figure}
+
+\begin{figure}[htbp]
+\centerline{\scalebox{.8}{\includegraphics{Figures/11.png}}}
+\caption{Example optimal alignment output.}
+\label{11}
+\end{figure}
+
+In our parallelized versions of the algorithm, we fill in the matrices anti-diagonally. This was achieved by using a nested loop. The outer loop traverses each anti-diagonal starting from the top left and ending at the bottom right. The inner loop, meanwhile, traverses each cell in an anti-diagonal starting from the topmost cell and ending in the leftmost cell.
+
+We ran a sequential version of the algorithm where the matrices are filled in anti-diagonally and found that there was no significant difference in runtime when compared to filling in the matrices in order from left to right starting from the top. Thus, the order of traversal should not affect the runtime.
+
+For all implementations, we tested the results using a pair of short DNA sequences and a pair of long DNA sequences. The short sequences each consists of 15 characters, and the long sequences each consists of 8,191 characters. These sequences are stored in a text file and are read into strings at the beginning of each implementation.
+
+In each parallel version of the algorithm, we run a loop to check the resulting scores matrix against the one produced in the sequential version to make sure that the correct output is produced.
+
+\subsubsection{Experiment 1}
+In our first attempt to parallelize the Needleman-Wunsch algorithm, we initially tried using locks. Our initial thought was to lock each anti-diagonal. We attempted to use locks to prevent the next anti-diagonal from being processed until the current one is completely filled in. After some time, we realized that this was the wrong approach because of the nature of locks. Locking access to each anti-diagonal meant that only one thread could enter the anti-diagonal at a time. We want all threads to be able to process the anti-diagonal at the same time. As for when processing each cell, there is no need to lock each cell since we are just calculating and filling in the score for the cell. Doing this does not affect the scores of any of the other cells within the same anti-diagonal. We realized that there is no need for locks at all.
+
+This led us to experimenting with atomic variables instead. Knowing that atomic variables are expensive, we tried to come up with an implementation that only required the use of one atomic variable. In order to do this, however, we had to create new threads for each anti-diagonal, which we thought might be even more costly than using multiple atomic variables. Nevertheless, we proceeded with the experiment.
+
+In the implementation, we use an atomic variable to keep track of the current row in each anti-diagonal that still needs to be calculated. The score for each cell is calculated the same way it is in the sequential implementation. The main steps are as follows. First, we traverse to the next anti-diagonal that needs to be processed. We then create 8 new threads and have the main process wait until all 8 threads terminate before looping and traversing to the next anti-diagonal. Each of the created threads enter another loop that traverses the rows in the anti-diagonal. This is equivalent to traversing each cell of the anti-diagonal since each of those cells is on a different row. Every time a thread loops, it calls getAndIncrement() on the current row atomic variable to get the row of the cell it needs to process. It processes the cell assigned to it by calculating the cell's score and updating the scores and traceback matrices. This inner loop continues until there are no more cells to process for the current anti-diagonal. At this point, all threads terminate and the main process proceeds to loop to the next anti-diagonal. Eight new threads are created for this anti-diagonal and the steps are repeated until the matrices are filled. Fig.~\ref{12} shows the outer loop in the implementation. The inner loop is within the run() method, which gets called when each thread runs.
+
+\begin{figure}[htbp]
+\centerline{\scalebox{.47}{\includegraphics{Figures/12.png}}}
+\caption{Portion of Experiment 1 code.}
+\label{12}
+\end{figure}
+
+Table~\ref{tab:table1} shows the results of Experiment 1 using both the short and long DNA sequence pairs. As can be seen, the runtimes for the sequential implementation is significantly better than the parallel implementation in all cases. To isolate the issue, we removed the multi-threading part of the code and ran the program again to test the impact of only the atomic variable. The execution time for the sequential version here was 1973885 ns, while the execution time for the version with the atomic variable was 2329790 ns. There was a decrease in performance here, but not as nearly significant as before. This shows that the constant creating and terminating of new threads in the Experiment 1 implementation contributed significantly to its slow runtime.
+
+\begin{table}[]
+\caption{Experiment 1 results.}
+\label{tab:table1}
+\begin{tabular}{|l|l|l|l|l|}
+\hline
+               & \textbf{}      & \textbf{Sequential} & \textbf{Parallel} & \textit{\textbf{Speed Up}} \\ \hline
+\textbf{Short} & \textit{Run 1} & 462574 ns           & 18238115 ns       & 0.025363036                \\ \hline
+               & \textit{Run 2} & 487001 ns           & 18840366 ns       & 0.025848808                \\ \hline
+               & \textit{Run 3} & 469271 ns           & 20105765 ns       & 0.023340123                \\ \hline
+\textbf{Long}  & \textit{Run 1} & 629235385 ns        & 7483184535 ns     & 0.08408658                 \\ \hline
+               & \textit{Run 2} & 585775817 ns        & 7559493370 ns     & 0.077488765                \\ \hline
+               & \textit{Run 3} & 619996746 ns        & 7559426547 ns     & 0.08201637                 \\ \hline
+\end{tabular}
+\end{table}
+
+\subsubsection{Experiment 2}
+In our second attempt to parallelize the algorithm, we moved the thread creation portion of the code to the outside of the loop so that it occurs only once. To prevent the outer loop from going to the next anti-diagonal before it's ready to be processed, we had to use two atomic booleans and another atomic integer in addition to the atomic integer used in the previous experiment that was keeping track of the current row. That's a total of 4 atomic variables being used. Despite atomic variables being costly, we thought that the parallelization would offset this cost.
+
+The first atomic boolean, \emph{waitToLoopAgain}, is used to prevent the threads from moving on to the next anti-diagonal before the current one is processed. It is initially set to true. As seen in Fig.~\ref{13}, we placed a while loop that spins on \emph{waitToLoopAgain} to prevent the threads from moving on until the last cell in the current anti-diagonal is processed. The point at which all the cells in the anti-diagonal is processed is the point when the last thread exits the inner loop. To keep track of this, we used the atomic integer \emph{threadCount} to keep count of the number of threads that has exited the inner loop. Once the last thread has exited the inner loop, we have that thread update some variables to prepare for the processing of the next anti-diagonal. The last thread also sets \emph{waitToLoopAgain} to false to free the other threads from the spin wait. If we loop again directly from this point, a potential problem is that the last thread might become stuck at this point when we reset \emph{waitToLoopAgain} to true again some point before calculating the next anti-diagonal. For instance, if we were to reset \emph{waitToLoopAgain} at the beginning right before the inner loop, one of the other threads might reach the reset point before that last thread is able to get past the spin wait, causing it to be stuck in the last loop iteration. To solve this problem, we introduced another atomic boolean \emph{waitToExecuteLoop}, which guarantees that last thread will always move on to the next iteration. This allows the last thread to be the thread that reset \emph{waitToLoopAgain}. The main downside of this method is that we have to call incrementAndGet() for each thread again in order to keep count of the number of threads that has exited the spin wait on \emph{waitToLoopAgain}. This adds to the overall cost.
+
+\begin{figure}[htbp]
+\centerline{\scalebox{.5}{\includegraphics{Figures/13.png}}}
+\caption{Portion of Experiment 2 code.}
+\label{13}
+\end{figure}
+
+Table~\ref{tab:table2} shows the results of Experiment 2. Again, in all cases, the sequential runtimes are much better than the parallel runtimes. The results here are definitely an improvement over those from Experiment 1. The use multiple atomic variables over constantly creating new threads did have a positive effect on runtimes. However, parallelization did not offset the cost of using all of those atomic variables. We performed a small experiment by testing the effects of atomic variable initialization on runtime and found that just initialization alone slowed down runtime. The more atomic variables we initialized, the more the runtime suffered. So this along with all the getAndIncrement()'s we used within the loops definitely contributed to the dismal results.
+
+\begin{table}[]
+\caption{Experiment 2 results.}
+\label{tab:table2}
+\begin{tabular}{|l|l|l|l|l|}
+\hline
+               & \textbf{}      & \textbf{Sequential} & \textbf{Parallel} & \textit{\textbf{Speed Up}} \\ \hline
+\textbf{Short} & \textit{Run 1} & 572938 ns           & 4841669 ns        & 0.118334815                \\ \hline
+               & \textit{Run 2} & 500059 ns           & 3022491 ns        & 0.16544598                 \\ \hline
+               & \textit{Run 3} & 484493 ns           & 2832178 ns        & 0.17106728                 \\ \hline
+\textbf{Long}  & \textit{Run 1} & 667113765 ns        & 2022222281 ns     & 0.3298914                  \\ \hline
+               & \textit{Run 2} & 591880250 ns        & 1708562826 ns     & 0.34641996                 \\ \hline
+               & \textit{Run 3} & 600636087 ns        & 1812491761 ns     & 0.33138692                 \\ \hline
+\end{tabular}
+\end{table}
+
+\subsubsection{Experiment 3}
+In our third attempt to parallelize the algorithm, we attempt to make use of Java's ExecutorService. Java's ExecutorService creates and manages a pool of threads so that we don't have to manage them ourselves \cite{baeldung_2021}. It then allows us to set tasks to it that are to be run. We thought that perhaps ExecutorService would manage the parallelization better than we did in Experiment 2. To use ExecutorService, it first needs to be instantiated with the number of threads passed in as an argument. We can then use the submit() method to pass in a function that is to be run. Once done, we need to call the shutdown() method to terminate the threads. Otherwise, it will run indefinitely.
+
+Initially, we instantiated the executor outside of the outer loop that traverses the anti-diagonals. We placed the submit() method call inside the inner loop that traverse the cells within each anti-diagonal. We pass to it a lambda function that calculates the cell scores. After a few runs the program, we got the an incorrect output. The matrix produced by the parallel implementation did not match the one produced by the sequential one. This means that the executor isn't always filling in the cells in the order that we expect it to. To remedy this, we moved the instantiation of the executor to the inside of the outer loop. Fig.~\ref{14} shows this. Moving the instantiation fixed the issue. However, now threads are being created every iteration of the outer loop. This is a situation similar to that of Experiment 1.
+
+\begin{figure}[htbp]
+\centerline{\scalebox{.47}{\includegraphics{Figures/14.png}}}
+\caption{Portion of Experiment 3 code.}
+\label{14}
+\end{figure}
+
+Table~\ref{tab:table3} shows the results of Experiment 3. As expected, the results are similar to those of Experiment 1 where the parallel runtimes are significantly higher than the sequential ones due to the constant creation of new threads. Our attempt to use Java's ExecutorService to manage threads did not lead to an improvement over Experiment 2.
+
+\begin{table}[]
+\caption{Experiment 3 results.}
+\label{tab:table3}
+\begin{tabular}{|l|l|l|l|l|}
+\hline
+               & \textbf{}      & \textbf{Sequential} & \textbf{Parallel} & \textit{\textbf{Speed Up}} \\ \hline
+\textbf{Short} & \textit{Run 1} & 472872 ns           & 33430366 ns       & 0.014144984                \\ \hline
+               & \textit{Run 2} & 504970 ns           & 29210923 ns       & 0.017287025                \\ \hline
+               & \textit{Run 3} & 474302 ns           & 28252854 ns       & 0.016787756                \\ \hline
+\textbf{Long}  & \textit{Run 1} & 650375441 ns        & 22830851413 ns    & 0.028486691                \\ \hline
+               & \textit{Run 2} & 603525660 ns        & 21543061968 ns    & 0.02801485                 \\ \hline
+               & \textit{Run 3} & 596988249 ns        & 21576963582 ns    & 0.02766785                 \\ \hline
+\end{tabular}
+\end{table}
+
+\subsubsection{Experiment 4}
+In our forth attempt to parallelize the algorithm, we try to make use of Java's IntStream parallel() method. Java streams allows us to work more easily with collections of objects by providing functions such as min(), max(), filter(), sum(), and more \cite{baeldung_2019}. An IntStream allows us to work with integers. Using an IntStream, we can run a parallel for-each loop using the range(), forEach(), and parallel() methods. To do this, we specify the range to iterate through in range() and the code to loop through in forEach(). We also call parallel() to request that the loop runs concurrently.
+
+Fig.~\ref{15} shows our implementation of the algorithm using IntStream parallel(). Here, the outer loop traversing through each anti-diagonal operates as normal. The inner loop is implemented using IntStream parallel(), allowing it to be run concurrently. So the calculations for the cells within each anti-diagonal is done concurrently. In doing this, we were hoping that the stream would do a better job at parallelizing the calculations than we did in Experiment 2.
+
+\begin{figure}[htbp]
+\centerline{\scalebox{.48}{\includegraphics{Figures/15.png}}}
+\caption{Portion of Experiment 4 code.}
+\label{15}
+\end{figure}
+
+Table~\ref{tab:table4} shows the results of Experiment 4. The results are an improvement over those of Experiment 2 for both the short and long DNA sequence pairs. So the stream did indeed do a better job at parallelizing the calculations. However, the sequential runtimes are still at least 2 times faster than the parallel runtimes. The parallel implementation still has not yet won over the sequential one.
+
+\begin{table}[]
+\caption{Experiment 4 results.}
+\label{tab:table4}
+\begin{tabular}{|l|l|l|l|l|}
+\hline
+               & \textbf{}      & \textbf{Sequential} & \textbf{Parallel} & \textit{\textbf{Speed Up}} \\ \hline
+\textbf{Short} & \textit{Run 1} & 471986 ns           & 11916292 ns       & 0.039608464                \\ \hline
+               & \textit{Run 2} & 505499 ns           & 12174915 ns       & 0.041519716                \\ \hline
+               & \textit{Run 3} & 516278 ns           & 12457773 ns       & 0.041442238                \\ \hline
+\textbf{Long}  & \textit{Run 1} & 782632610 ns        & 1298789099 ns     & 0.6025864                  \\ \hline
+               & \textit{Run 2} & 594413865 ns        & 1169940500 ns     & 0.5080719                  \\ \hline
+               & \textit{Run 3} & 619870475 ns        & 1166825815 ns     & 0.53124505                 \\ \hline
+\end{tabular}
+\end{table}
+
+These results are the best we have gotten so far. At this point, we considered that maybe we would see improvements if we increased the sizes of the input sequences. Perhaps there is a certain minimum size where we would start seeing the benefits of the parallelized version. We doubled the length of long sequences to be 16,382 characters each and tested the code again. The runtime did not improve. It would stay around the same as before (around 0.5 speed up) and sometimes would even be worse (down to 0.45 speed up).
+
+Next, we attempted to make the code non-blocking by parallelizing both the outer and inner loops to see what would happen. First, we initialized each cell of the scores matrix with Integer.MIN\_VALUE. We then implemented the two loops using IntStream parallel() to have them run concurrently. In the calculateCell() method, which determines the score for a cell and gets called in the inner loop, we placed a spin wait on the left, top, and top left diagonal neighbor cells. The spin wait runs until the neighboring cells' values are calculated. That is, it spins until they are not equal to Integer.MIN\_VALUE.
+
+We soon found that the problem with this implementation was that it would almost always lead to a deadlock, especially with the longer sequence. And the reason for this is due to the number of threads spawned by the stream being limited. If all threads land on a cell whose neighbors have not been calculated, they will all spin forever and lead to a deadlock.
 
 \bibliographystyle{IEEEtran}
 \bibliography{IEEEabrv,References}

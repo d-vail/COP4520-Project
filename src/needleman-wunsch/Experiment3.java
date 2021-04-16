@@ -1,5 +1,10 @@
 // Needleman-Wunsch Sequence Alignment
 
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.io.*;
 
@@ -38,6 +43,25 @@ class NeedlemanWunsch {
         // sequentialNeedleWunsch.printOptimal();
         // System.out.println();
         // parallelNeedleWunsch.printOptimal();
+
+        // Print matrices
+        // sequentialNeedleWunsch.printMatrices();
+        // System.out.println();
+        // parallelNeedleWunsch.printMatrices();
+        // System.out.println();
+
+        // Check for differences between sequential and parallel matrices
+        int[][] sequentialScores = sequentialNeedleWunsch.getScores();
+        int[][] parallelScores = parallelNeedleWunsch.getScores();
+
+        for (int i = 0; i < sequentialScores.length; i++) {
+            for (int j = 0; j < parallelScores.length; j++) {
+                if (sequentialScores[i][j] != parallelScores[i][j]) {
+                    System.out.println("There is a mismatch at: " + i + ", " + j);
+                    System.exit(-1);
+                }
+            }
+        }
 
         // Print execution times
         System.out.println("Sequential execution time: " + sequentialTime + " nanoseconds");
@@ -95,15 +119,39 @@ class SequentialNeedleWunsch {
 
                 scores[i][j] = Math.max(left, Math.max(up, diagonal));
 
-                if (diagonal == scores[i][j]) {
+                if (scores[i][j] == diagonal) {
                     traceback[i][j] = 'd';
-                } else if (up == scores[i][j]) {
+                } else if (scores[i][j] == up) {
                     traceback[i][j] = 'u';
                 } else {
                     traceback[i][j] = 'l';
                 }
             }
         }
+    }
+
+    public void printMatrices() {
+        for (int i = 0; i < scores.length; i++) {
+            for (int j = 0; j < scores.length; j++) {
+                System.out.print(String.format("%3d ", scores[i][j]));
+            }
+
+            System.out.println();
+        }
+
+        System.out.println();
+
+        for (int i = 0; i < traceback.length; i++) {
+            for (int j = 0; j < traceback.length; j++) {
+                System.out.print(String.format("%3c ", traceback[i][j]));
+            }
+
+            System.out.println();
+        }
+    }
+
+    public int[][] getScores() {
+        return scores;
     }
 
     public void printOptimal() {
@@ -126,12 +174,21 @@ class SequentialNeedleWunsch {
     }
 }
 
-class ParallelNeedleWunsch implements Runnable {
+class ParallelNeedleWunsch {
     String s1, s2;
     int[][] scores;
     char[][] traceback;
     int match, mismatch, gap;
     int lastRowIndex, lastColIndex;
+    int antiDiagonal;
+    AtomicInteger currRow;
+    AtomicBoolean waitToLoopAgain;
+    AtomicBoolean waitToExecuteLoop;
+    AtomicInteger threadCount;
+    int numRows;
+    int firstRowInAntiDiagonal, lastRowInAntiDiagonal;
+    final int NUM_THREADS = 8;
+    CountDownLatch latch;
 
     public ParallelNeedleWunsch(String s1, String s2, int match, int mismatch, int gap) {
         this.s1 = s1;
@@ -157,76 +214,94 @@ class ParallelNeedleWunsch implements Runnable {
             scores[i][0] = i * gap;
             traceback[i][0] = 'u';
         }
+
+        antiDiagonal = 2; // Start at third anti-diagonal
+        currRow = new AtomicInteger();
+        waitToLoopAgain = new AtomicBoolean(true);
+        waitToExecuteLoop = new AtomicBoolean(false);
+        numRows = s1.length() + 1; // Number of rows in matrix
+        currRow.set(getFirstRowInAntiDiagonal());
+        threadCount = new AtomicInteger(0);
+        firstRowInAntiDiagonal = getFirstRowInAntiDiagonal();
+        lastRowInAntiDiagonal = antiDiagonal - firstRowInAntiDiagonal;
+        latch = new CountDownLatch(lastRowInAntiDiagonal);
     }
 
-    int numRows;
-    int antiDiagonal;
-    int currRow;
-    AtomicInteger tempCurrRow = new AtomicInteger();
+    private int getFirstRowInAntiDiagonal() {
+        return (antiDiagonal < numRows) ? 0 : antiDiagonal - numRows + 1;
+    }
 
     public void fillMatrices() {
-        numRows = s1.length() + 1;
+        int n = numRows;
 
-        for (antiDiagonal = 1; antiDiagonal < 2 * numRows - 1; antiDiagonal++) {
-            currRow = (antiDiagonal < numRows) ? 0 : antiDiagonal - numRows + 1;
-            tempCurrRow.set(currRow);
-            int numThreads = 8;
-            Thread[] threads = new Thread[numThreads];
+        for (int i = 0; i < 2 * n - 1; i++) {
+            int z = (i < n) ? 0 : i - n + 1;
+            var executor = Executors.newFixedThreadPool(8);
 
-            for (int i = 0; i < threads.length; i++) {
-                threads[i] = new Thread(this);
-            }
+            for (int j = z; j <= i - z; j++) {
+                final int row = j;
+                final int col = i - j;
 
-            for (int i = 0; i < threads.length; i++) {
-                threads[i].start();
-            }
-
-            for (int i = 0; i < threads.length; i++) {
-                try {
-                    threads[i].join();
-                } catch (Exception e) {
-                    System.out.println(e);
+                if (row == 0 || col == 0) {
+                    continue;
                 }
+
+                executor.submit(() -> {
+                    int left = scores[row][col - 1] + gap;
+                    int up = scores[row - 1][col] + gap;
+                    int diagonal;
+
+                    if (s1.charAt(col - 1) == s2.charAt(row - 1)) {
+                        diagonal = scores[row - 1][col - 1] + match;
+                    } else {
+                        diagonal = scores[row - 1][col - 1] + mismatch;
+                    }
+
+                    scores[row][col] = Math.max(left, Math.max(up, diagonal));
+
+                    if (scores[row][col] == diagonal) {
+                        traceback[row][col] = 'd';
+                    } else if (scores[row][col] == up) {
+                        traceback[row][col] = 'u';
+                    } else {
+                        traceback[row][col] = 'l';
+                    }
+                });
+            }
+
+            executor.shutdown();
+            
+            try {
+                boolean finished = executor.awaitTermination(1, TimeUnit.MINUTES);
+                while (!finished) {
+                }
+            } catch (Exception e) {
             }
         }
     }
 
-    public void run() {
-        int left, up, diagonal;
-
-        while (tempCurrRow.get() <= antiDiagonal - currRow) {
-            int temp = tempCurrRow.getAndIncrement();
-
-            if (temp > antiDiagonal - currRow) {
-                break;
+    public void printMatrices() {
+        for (int i = 0; i < scores.length; i++) {
+            for (int j = 0; j < scores.length; j++) {
+                System.out.print(String.format("%3d ", scores[i][j]));
             }
 
-            int row = temp;
-            int col = antiDiagonal - temp;
-
-            if (row == 0 || col == 0) {
-                continue;
-            }
-
-            left = scores[row][col - 1] + gap;
-            up = scores[row - 1][col] + gap;
-
-            if (s1.charAt(col - 1) == s2.charAt(row - 1)) {
-                diagonal = scores[row - 1][col - 1] + match;
-            } else {
-                diagonal = scores[row - 1][col - 1] + mismatch;
-            }
-
-            scores[row][col] = Math.max(left, Math.max(up, diagonal));
-
-            if (diagonal == scores[row][col]) {
-                traceback[row][col] = 'd';
-            } else if (up == scores[row][col]) {
-                traceback[row][col] = 'u';
-            } else {
-                traceback[row][col] = 'l';
-            }
+            System.out.println();
         }
+
+        System.out.println();
+
+        for (int i = 0; i < traceback.length; i++) {
+            for (int j = 0; j < traceback.length; j++) {
+                System.out.print(String.format("%3c ", traceback[i][j]));
+            }
+
+            System.out.println();
+        }
+    }
+
+    public int[][] getScores() {
+        return scores;
     }
 
     public void printOptimal() {
