@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.14159265-2.6-1.40.21 (TeX Live 2020) (preloaded format=pdflatex 2020.4.7)  21 APR 2021 17:03
+This is pdfTeX, Version 3.14159265-2.6-1.40.21 (TeX Live 2020) (preloaded format=pdflatex 2020.4.7)  21 APR 2021 17:18
 entering extended mode
  restricted \write18 enabled.
  file:line:error style messages enabled.
@@ -500,7 +500,7 @@ Before submitting the final camera ready copy, remember to:
 Here is how much of TeX's memory you used:
  3980 strings out of 480608
  57291 string characters out of 5903631
- 308335 words of memory out of 5000000
+ 309335 words of memory out of 5000000
  19821 multiletter control sequences out of 15000+600000
  574933 words of font info for 106 fonts, out of 8000000 for 9000
  1141 hyphenation exceptions out of 8191
@@ -510,7 +510,7 @@ ase/8r.enc}</usr/local/texlive/2020/texmf-dist/fonts/type1/urw/times/utmb8a.pfb
 ></usr/local/texlive/2020/texmf-dist/fonts/type1/urw/times/utmbi8a.pfb></usr/lo
 cal/texlive/2020/texmf-dist/fonts/type1/urw/times/utmr8a.pfb></usr/local/texliv
 e/2020/texmf-dist/fonts/type1/urw/times/utmri8a.pfb>
-Output written on "Project Report.pdf" (9 pages, 982979 bytes).
+Output written on "Project Report.pdf" (9 pages, 983582 bytes).
 PDF statistics:
  82 PDF objects out of 1000 (max. 8388607)
  36 compressed objects within 1 object stream

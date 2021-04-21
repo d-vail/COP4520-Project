@@ -337,8 +337,7 @@ In this experiment, we used two threads to initialize the score and traceback ma
 \end{table}
 
 \section{Conclusion}
-
-...
+The calculation of the matrix scores for the Needleman-Wunsch and Smith-Waterman algorithms can only be parallelized within each anti-diagonal. Threads have to be blocked from moving on to the next anti-diagonal until the current anti-diagonal is filled in. In our experiments, we find that the overhead of parallelizing this way wins over the benefits of parallelization. Additionally, increasing the size of the input sequences means increasing the number of anti-diagonals that need to be processed. And the more anti-diagonals there are, the more overhead that is involved. So, it seems that the current heuristic approaches being used right now are the best solutions to the sequence alignment problem even though they do not always return the exact most optimal solutions.
 
 \bibliographystyle{IEEEtran}
 \bibliography{IEEEabrv,References}
