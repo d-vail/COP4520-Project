@@ -162,7 +162,7 @@ This section describes in detail our attempts to parallelize the algorithms desc
 \subsection{Needleman-Wunsch}
 Naveed, Siddiqui, and Ahmed described a method to parallelize the Needleman-Wunsch algorithm in their paper but did not show an actual implementation \cite{naveed_siddiqui_ahmed}. We attempted to implement parallelized versions of the Needleman-Wunsch algorithm based on the anti-diagonal method described in their paper. The results of our experiments are described in this section.
 
-For each of our experiments, we implemented and ran a sequential version of the algorithm alongside the parallelized version to compare the runtimes between the two. The sequential version that we implemented is the dynamic programming based algorithm described in the prior section. The main part of our sequential implementation is the fillMatrices() method, which fills up both the scores matrix and traceback matrix for the two input sequences. After the initialization of the first row and first column of each matrix in the constructor, the matrices are filled from left to right starting from the top left based on the scoring system described in the prior section.
+For each of our experiments, we implemented and ran a sequential version of the algorithm alongside the parallelized version to compare the runtimes between the two. The sequential version that we implemented is the dynamic programming based algorithm described in the prior section. The main part of our sequential implementation is the fillMatrices() method, which fills up both the score matrix and traceback matrix for the two input sequences. After the initialization of the first row and first column of each matrix in the constructor, the matrices are filled from left to right starting from the top left based on the scoring system described in the prior section.
 
 Fig.~\ref{9} shows the code for our fillMatrices() method. As can be seen in the figure, three scores are calculated for each cell: one based on the adjacent left cell, one based on the adjacent top cell, and one based on the adjacent top left diagonal cell. The scores are stored in the variables \emph{left}, \emph{up}, and \emph{diagonal}. The score based on the diagonal cell depends on whether the two letters representing the current cell is a match. For example, if the letters A and A represents the cell, then we add the match score to the diagonal score. The highest score out of the three calculated scores is chosen and stored into the cell. Next, the corresponding cell in the traceback matrix is filled based on which score was chosen. For example, the character 'd' for diagonal would be stored in the cell if the max calculated score is based on the diagonal cell.
 
@@ -194,7 +194,7 @@ We ran a sequential version of the algorithm where the matrices are filled in an
 
 For all implementations, we tested the results using a pair of short DNA sequences and a pair of long DNA sequences. The short sequences each consists of 15 characters, and the long sequences each consists of 8,191 characters. These sequences are stored in a text file and are read into strings at the beginning of each implementation.
 
-In each parallel version of the algorithm, we run a loop to check the resulting scores matrix against the one produced in the sequential version to make sure that the correct output is produced.
+In each parallel version of the algorithm, we run a loop to check the resulting score matrix against the one produced in the sequential version to make sure that the correct output is produced.
 
 \subsubsection{Experiment 1}
 In our first attempt to parallelize the Needleman-Wunsch algorithm, we initially tried using locks. Our initial thought was to lock each anti-diagonal. We attempted to use locks to prevent the next anti-diagonal from being processed until the current one is completely filled in. After some time, we realized that this was the wrong approach because of the nature of locks. Locking access to each anti-diagonal meant that only one thread could enter the anti-diagonal at a time. We want all threads to be able to process the anti-diagonal at the same time. As for when processing each cell, there is no need to lock each cell since we are just calculating and filling in the score for the cell. Doing this does not affect the scores of any of the other cells within the same anti-diagonal. We realized that there is no need for locks at all.
@@ -312,9 +312,33 @@ Table~\ref{tab:table4} shows the results of Experiment 4. The results are an imp
 
 These results are the best we have gotten so far. At this point, we considered that maybe we would see improvements if we increased the sizes of the input sequences. Perhaps there is a certain minimum size where we would start seeing the benefits of the parallelized version. We doubled the length of long sequences to be 16,382 characters each and tested the code again. The runtime did not improve. It would stay around the same as before (around 0.5 speed up) and sometimes would even be worse (down to 0.45 speed up).
 
-Next, we attempted to make the code non-blocking by parallelizing both the outer and inner loops to see what would happen. First, we initialized each cell of the scores matrix with Integer.MIN\_VALUE. We then implemented the two loops using IntStream parallel() to have them run concurrently. In the calculateCell() method, which determines the score for a cell and gets called in the inner loop, we placed a spin wait on the left, top, and top left diagonal neighbor cells. The spin wait runs until the neighboring cells' values are calculated. That is, it spins until they are not equal to Integer.MIN\_VALUE.
+Next, we attempted to make the code non-blocking by parallelizing both the outer and inner loops to see what would happen. First, we initialized each cell of the score matrix with Integer.MIN\_VALUE. We then implemented the two loops using IntStream parallel() to have them run concurrently. In the calculateCell() method, which determines the score for a cell and gets called in the inner loop, we placed a spin wait on the left, top, and top left diagonal neighbor cells. The spin wait runs until the neighboring cells' values are calculated. That is, it spins until they are not equal to Integer.MIN\_VALUE.
 
 We soon found that the problem with this implementation was that it would almost always lead to a deadlock, especially with the longer sequence. And the reason for this is due to the number of threads spawned by the stream being limited. If all threads land on a cell whose neighbors have not been calculated, they will all spin forever and lead to a deadlock.
+
+\subsubsection{Experiment 5}
+In Experiment 5, we attempt to parallelize the initialization of the score and traceback matrices. The first row and column of each matrix are initialized in the constructor. The cells in the first row and column of the score matrix is initialized incrementally based on the gap penalty. If the gap penalty is -5, for example, the first row and column would be as follows: 0, -5, -10, -15,  and so on. The first row of the traceback matrix is initialized with 'u' for up, and the first column is initialized with 'l' for left. Since the initializations of the rows and columns of the matrices are independent, we could use two threads to perform the initializations.
+
+In this experiment, we used two threads to initialize the score and traceback matrices. The first thread initializes the first row of each matrix. The second thread initializes the second row of each matrix. We tested the code on matrices of varying sizes, and the results are shown in Table~\ref{tab:table5}. Initializing 1000 x 1000 sized matrices with the parallel code did not lead to a speed up. The cost of creating the two threads was more than the benefits of parallelizing. However, once the matrix size reached 10,000 x 10,000, we started seeing a speed up. The parallel initialization here is about 1.2 times  faster than the sequential initialization.
+
+\begin{table}[]
+\caption{Experiment 5 results.}
+\label{tab:table5}
+\begin{tabular}{|l|l|l|l|l|}
+\hline
+              &       & Sequential   & Parallel     & Speed Up   \\ \hline
+1000 x 1000   & Run 1 & 2539679 ns   & 8673331 ns   & 0.29281473 \\ \hline
+              & Run 2 & 2628954 ns   & 8628483 ns   & 0.3046832  \\ \hline
+5000 x 5000   & Run 1 & 64573559 ns  & 66175707 ns  & 0.9757895  \\ \hline
+              & Run 2 & 66140762 ns  & 72408537 ns  & 0.91343874 \\ \hline
+10000 x 10000 & Run 1 & 294585528 ns & 236183506 ns & 1.2472739  \\ \hline
+              & Run 2 & 311827281 ns & 243780913 ns & 1.2791293  \\ \hline
+\end{tabular}
+\end{table}
+
+\section{Conclusion}
+
+...
 
 \bibliographystyle{IEEEtran}
 \bibliography{IEEEabrv,References}

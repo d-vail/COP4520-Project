@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.14159265-2.6-1.40.21 (TeX Live 2020) (preloaded format=pdflatex 2020.4.7)  15 APR 2021 22:01
+This is pdfTeX, Version 3.14159265-2.6-1.40.21 (TeX Live 2020) (preloaded format=pdflatex 2020.4.7)  21 APR 2021 17:03
 entering extended mode
  restricted \write18 enabled.
  file:line:error style messages enabled.
@@ -438,6 +438,16 @@ Package pdftex.def Info: Figures/15.png  used on input line 291.
 LaTeX Warning: No positions in optional float specifier.
                Default added (so using `tbp') on input line 298.
 
+[8 <./Figures/14.png> <./Figures/15.png>]
+
+LaTeX Warning: No positions in optional float specifier.
+               Default added (so using `tbp') on input line 324.
+
+
+Overfull \hbox (7.5601pt too wide) in paragraph at lines 327--337
+[][] 
+ []
+
 (./Project Report.bbl
 Underfull \hbox (badness 6204) in paragraph at lines 31--35
 \OT1/ptm/m/n/8 wunsch al-go-rithm,'' \OT1/ptm/m/it/8 Am-rita\OT1/ptm/m/n/8 . [O
@@ -461,7 +471,7 @@ Underfull \hbox (badness 6001) in paragraph at lines 49--53
 -line]. Avail-able:
  []
 
-[8 <./Figures/14.png> <./Figures/15.png>]
+
 Underfull \hbox (badness 10000) in paragraph at lines 68--72
 []\OT1/ptm/m/n/8 ``Hirschberg's al-go-rithm: Edit-distance re-vis-
  []
@@ -488,10 +498,10 @@ Before submitting the final camera ready copy, remember to:
 
 ] (./Project Report.aux) ) 
 Here is how much of TeX's memory you used:
- 3979 strings out of 480608
- 57279 string characters out of 5903631
- 307327 words of memory out of 5000000
- 19820 multiletter control sequences out of 15000+600000
+ 3980 strings out of 480608
+ 57291 string characters out of 5903631
+ 308335 words of memory out of 5000000
+ 19821 multiletter control sequences out of 15000+600000
  574933 words of font info for 106 fonts, out of 8000000 for 9000
  1141 hyphenation exceptions out of 8191
  30i,11n,37p,1894b,308s stack positions out of 5000i,500n,10000p,200000b,80000s
@@ -500,7 +510,7 @@ ase/8r.enc}</usr/local/texlive/2020/texmf-dist/fonts/type1/urw/times/utmb8a.pfb
 ></usr/local/texlive/2020/texmf-dist/fonts/type1/urw/times/utmbi8a.pfb></usr/lo
 cal/texlive/2020/texmf-dist/fonts/type1/urw/times/utmr8a.pfb></usr/local/texliv
 e/2020/texmf-dist/fonts/type1/urw/times/utmri8a.pfb>
-Output written on "Project Report.pdf" (9 pages, 981086 bytes).
+Output written on "Project Report.pdf" (9 pages, 982979 bytes).
 PDF statistics:
  82 PDF objects out of 1000 (max. 8388607)
  36 compressed objects within 1 object stream
