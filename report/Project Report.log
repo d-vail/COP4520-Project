@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.14159265-2.6-1.40.21 (TeX Live 2020) (preloaded format=pdflatex 2020.4.7)  21 APR 2021 17:23
+This is pdfTeX, Version 3.14159265-2.6-1.40.21 (TeX Live 2020) (preloaded format=pdflatex 2020.4.7)  24 APR 2021 20:10
 entering extended mode
  restricted \write18 enabled.
  file:line:error style messages enabled.
@@ -366,85 +366,94 @@ Underfull \hbox (badness 10000) in paragraph at lines 122--123
 
  []
 
-<Figures/7.png, id=23, 360.34625pt x 246.9225pt>
+[3 <./Figures/4.png> <./Figures/5.png> <./Figures/6.png>]
+<Figures/7.png, id=29, 360.34625pt x 246.9225pt>
 File: Figures/7.png Graphic file (type png)
 <use Figures/7.png>
 Package pdftex.def Info: Figures/7.png  used on input line 128.
 (pdftex.def)             Requested size: 360.34537pt x 246.92188pt.
-[3 <./Figures/4.png> <./Figures/5.png> <./Figures/6.png>]
 <Figures/8.png, id=30, 381.425pt x 203.76125pt>
 File: Figures/8.png Graphic file (type png)
 <use Figures/8.png>
 Package pdftex.def Info: Figures/8.png  used on input line 143.
 (pdftex.def)             Requested size: 381.42406pt x 203.76074pt.
+LaTeX Font Info:    Trying to load font information for OMS+ptm on input line 1
+56.
 
-Underfull \vbox (badness 7415) has occurred while \output is active []
-
+(/usr/local/texlive/2020/texmf-dist/tex/latex/psnfss/omsptm.fd
+File: omsptm.fd 
+)
+LaTeX Font Info:    Font shape `OMS/ptm/m/n' in size <10> not available
+(Font)              Font shape `OMS/cmsy/m/n' tried instead on input line 156.
  [4 <./Figures/7.png> <./Figures/8.png>]
 <Figures/9.png, id=36, 494.84875pt x 473.77pt>
 File: Figures/9.png Graphic file (type png)
 <use Figures/9.png>
-Package pdftex.def Info: Figures/9.png  used on input line 170.
+Package pdftex.def Info: Figures/9.png  used on input line 172.
 (pdftex.def)             Requested size: 494.84755pt x 473.76884pt.
 <Figures/10.png, id=37, 513.92pt x 331.2375pt>
 File: Figures/10.png Graphic file (type png)
 <use Figures/10.png>
-Package pdftex.def Info: Figures/10.png  used on input line 180.
+Package pdftex.def Info: Figures/10.png  used on input line 182.
 (pdftex.def)             Requested size: 513.91873pt x 331.23668pt.
 <Figures/11.png, id=38, 41.65562pt x 101.88063pt>
 File: Figures/11.png Graphic file (type png)
 <use Figures/11.png>
-Package pdftex.def Info: Figures/11.png  used on input line 186.
+Package pdftex.def Info: Figures/11.png  used on input line 188.
 (pdftex.def)             Requested size: 41.65552pt x 101.88037pt.
- [5 <./Figures/9.png> <./Figures/10.png> <./Figures/11.png>]
+ [5 <./Figures/9.png> <./Figures/10.png>]
 <Figures/12.png, id=45, 532.99126pt x 386.44376pt>
 File: Figures/12.png Graphic file (type png)
 <use Figures/12.png>
-Package pdftex.def Info: Figures/12.png  used on input line 207.
+Package pdftex.def Info: Figures/12.png  used on input line 209.
 (pdftex.def)             Requested size: 532.98996pt x 386.44281pt.
 
 
 LaTeX Warning: No positions in optional float specifier.
-               Default added (so using `tbp') on input line 214.
+               Default added (so using `tbp') on input line 216.
 
-[6 <./Figures/12.png>]
-<Figures/13.png, id=50, 513.92pt x 724.7075pt>
+[6 <./Figures/11.png> <./Figures/12.png>]
+<Figures/13.png, id=51, 513.92pt x 724.7075pt>
 File: Figures/13.png Graphic file (type png)
 <use Figures/13.png>
-Package pdftex.def Info: Figures/13.png  used on input line 235.
+Package pdftex.def Info: Figures/13.png  used on input line 237.
 (pdftex.def)             Requested size: 513.91873pt x 724.70573pt.
 
 
 LaTeX Warning: No positions in optional float specifier.
-               Default added (so using `tbp') on input line 242.
-
-<Figures/14.png, id=51, 545.03625pt x 744.7825pt>
-File: Figures/14.png Graphic file (type png)
-<use Figures/14.png>
-Package pdftex.def Info: Figures/14.png  used on input line 263.
-(pdftex.def)             Requested size: 545.03493pt x 744.78069pt.
-
-LaTeX Warning: No positions in optional float specifier.
-               Default added (so using `tbp') on input line 270.
+               Default added (so using `tbp') on input line 244.
 
 [7 <./Figures/13.png>]
-<Figures/15.png, id=57, 531.9875pt x 257.96375pt>
+<Figures/14.png, id=57, 545.03625pt x 744.7825pt>
+File: Figures/14.png Graphic file (type png)
+<use Figures/14.png>
+Package pdftex.def Info: Figures/14.png  used on input line 265.
+(pdftex.def)             Requested size: 545.03493pt x 744.78069pt.
+
+
+LaTeX Warning: No positions in optional float specifier.
+               Default added (so using `tbp') on input line 272.
+
+
+Underfull \vbox (badness 1515) has occurred while \output is active []
+
+<Figures/15.png, id=58, 531.9875pt x 257.96375pt>
 File: Figures/15.png Graphic file (type png)
 <use Figures/15.png>
-Package pdftex.def Info: Figures/15.png  used on input line 291.
+Package pdftex.def Info: Figures/15.png  used on input line 293.
 (pdftex.def)             Requested size: 531.9862pt x 257.9631pt.
 
 
 LaTeX Warning: No positions in optional float specifier.
-               Default added (so using `tbp') on input line 298.
+               Default added (so using `tbp') on input line 300.
 
 [8 <./Figures/14.png> <./Figures/15.png>]
 
 LaTeX Warning: No positions in optional float specifier.
-               Default added (so using `tbp') on input line 324.
+               Default added (so using `tbp') on input line 326.
 
 
-Overfull \hbox (7.51205pt too wide) in paragraph at lines 327--337
+Overfull \hbox (7.51205pt too wide) in paragraph at lines 329--339
 [][] 
  []
 
@@ -460,7 +469,7 @@ Underfull \hbox (badness 1412) in paragraph at lines 42--46
 it/8 Uni-
  []
 
-
+[9]
 Underfull \hbox (badness 1895) in paragraph at lines 49--53
 []\OT1/ptm/m/n/8 L. Vladimir, ``The needleman-wunsch al-go-rithm for
  []
@@ -494,26 +503,27 @@ Before submitting the final camera ready copy, remember to:
  uses only Type 1 fonts and that every step in the generation
  process uses the appropriate paper size.
 
-[9
+[10
 
 ] (./Project Report.aux) ) 
 Here is how much of TeX's memory you used:
- 3980 strings out of 480608
- 57291 string characters out of 5903631
- 309335 words of memory out of 5000000
- 19821 multiletter control sequences out of 15000+600000
+ 4001 strings out of 480608
+ 57654 string characters out of 5903631
+ 308343 words of memory out of 5000000
+ 19839 multiletter control sequences out of 15000+600000
  574933 words of font info for 106 fonts, out of 8000000 for 9000
  1141 hyphenation exceptions out of 8191
  30i,11n,37p,1894b,308s stack positions out of 5000i,500n,10000p,200000b,80000s
 {/usr/local/texlive/2020/texmf-dist/fonts/enc/dvips/b
-ase/8r.enc}</usr/local/texlive/2020/texmf-dist/fonts/type1/urw/times/utmb8a.pfb
-></usr/local/texlive/2020/texmf-dist/fonts/type1/urw/times/utmbi8a.pfb></usr/lo
-cal/texlive/2020/texmf-dist/fonts/type1/urw/times/utmr8a.pfb></usr/local/texliv
-e/2020/texmf-dist/fonts/type1/urw/times/utmri8a.pfb>
-Output written on "Project Report.pdf" (9 pages, 984150 bytes).
+ase/8r.enc}</usr/local/texlive/2020/texmf-dist/fonts/type1/public/amsfonts/cm/c
+msy10.pfb></usr/local/texlive/2020/texmf-dist/fonts/type1/urw/times/utmb8a.pfb>
+</usr/local/texlive/2020/texmf-dist/fonts/type1/urw/times/utmbi8a.pfb></usr/loc
+al/texlive/2020/texmf-dist/fonts/type1/urw/times/utmr8a.pfb></usr/local/texlive
+/2020/texmf-dist/fonts/type1/urw/times/utmri8a.pfb>
+Output written on "Project Report.pdf" (10 pages, 999112 bytes).
 PDF statistics:
- 82 PDF objects out of 1000 (max. 8388607)
- 36 compressed objects within 1 object stream
+ 89 PDF objects out of 1000 (max. 8388607)
+ 41 compressed objects within 1 object stream
  0 named destinations out of 1000 (max. 500000)
  76 words of extra memory for PDF output out of 10000 (max. 10000000)
 

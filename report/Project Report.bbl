@@ -83,4 +83,15 @@ baeldung, ``A guide to the java executorservice,'' \emph{Baeldung}, Feb 2021.
   [Online]. Available: \url{https://www.baeldung.com/java-8-primitive-streams}
 \BIBentrySTDinterwordspacing
 
+\bibitem{blakeklasing}
+\BIBentryALTinterwordspacing
+blakeklasing, ``Nw-parallel,'' Nov 2016. [Online]. Available:
+  \url{https://github.com/blakeklasing/NW-Parallel}
+\BIBentrySTDinterwordspacing
+
+\bibitem{lee_kim_uy_2020}
+Y.~S. Lee, Y.~S. Kim, and R.~L. Uy, ``Serial and parallel implementation of
+  needleman-wunsch algorithm,'' \emph{International Journal of Advances in
+  Intelligent Informatics}, vol.~6, no.~1, p.~97, 2020.
+
 \end{thebibliography}

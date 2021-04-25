@@ -26,7 +26,7 @@
 \maketitle
 
 \begin{abstract}
-...
+In our project, we explore the parallelization of the algorithms used in sequence alignment based on dynamic programming. We researched the Needleman-Wunsch, the Smith-Waterman, and Hirschberg's algorithms. We then performed experiments attempting to parallelize them using the anti-diagonal technique and recorded our results. Our focus was on the Needleman-Wunsch algorithm since the Smith-Waterman algorithm is just a variation of it and Hirschberg's algorithm is a more space efficient version of it. In the end, we found that, when it comes to sequence alignment, the cost of parallelizing outweighs the benefits. This is due to the limitations of the anti-diagonal parallelization technique. The matrices used in the algorithm can only be filled in one anti-diagonal at time, and it has to be done in order. As a result, parallelization can only be done within each anti-diagonal.
 \end{abstract}
 
 \section{Introduction}
@@ -59,7 +59,7 @@ The existing algorithms for sequence alignment fall into three categories: dynam
 The focus of the project is to only explore existing sequential and concurrent algorithms for sequence alignment based on dynamic programming.
 
 \section{Goals}
-As stated before, the goal of this project is the explore existing sequential and concurrent algorithms for sequence alignment based on dynamic programming. We will attempt to implement these algorithms and improve the parallelization of them through experimentation.
+As stated before, the goal of this project is the explore existing sequential and concurrent algorithms for sequence alignment based on dynamic programming. We will attempt to implement these algorithms and explore the parallelization of them through experimentation.
 
 \section{Existing Algorithms}
 The following section presents some dynamic programming based algorithms for sequence alignment. The Needleman-Wunsch algorithm is used to find global alignments. The Smith-Waterman algorithm is used to find local alignments. And the Hirschberg algorithm is a space efficient modification of the Needleman-Wunsch algorithm.
@@ -149,13 +149,15 @@ The limitation of this method is that the parallelization can be done only withi
 
 According to the authors, the parallel version of the Needleman-Wunsch algorithm has a runtime of O(N+M) \cite{naveed_siddiqui_ahmed}. This is an improvement over the O(MN) runtime of the original algorithm.
 
-\subsection{Hirschberg}
+\subsection{Smith-Waterman}
+The Smith-Waterman algorithm is used to find the optimal local alignment between two sequences. It finds the optimal alignment based on local regions instead of the entire sequence. It is a variation of the Needleman-Wunsch algorithm. It differs from the Needleman-Wunsch algorithm in three ways. First, the first row and column of the score matrix is initialized with zeros. In the Needleman-Wunsch algorithm, initialization is based on the gap penalty. Second, if the final score for a cell is negative, it gets replaced with a zero. In the Needleman-Wunsch algorithm, negative scores are kept. And lastly, the traceback step starts at the highest score and stops when a zero is reached. In the Needleman-Wunsch algorithm, traceback starts at the last cell and ends at the first cell. Because the Smith-Waterman algorithm is a variation of the Needleman-Wunsch algorithm, it can be parallelized in the same way. That is, it can be parallelized by traversing anti-diagonally and calculating the scores in each anti-diagonal concurrently.
 
-Created in the mid 1970’s by Dan Hirschberg, Hirschberg’s algorithm is an improvement to the Needleman-Wunsch algorithm created at the beginning of the decade \cite{hirschberg_1975}. The goal of the algorithm is to find the optimal sequence alignment of two strings \cite{hirschberg_1975}. This is particularly useful in DNA and protein sequencing in the field of bioinformatics/computational biology. Hirschberg’s improvement on the Needleman-Wunsch algorithm comes from it being more spatially efficient. As stated in the above section, the runtime efficiency of Needleman-Wunsch is O(nm), where n and m are the lengths of the two strings respectively, which is the same as Hirschberg’s. The difference is that Needleman-Wunsch uses O(nm) space, since it creates an n by m matrix, where n and m are the lengths of the sequences, whereas Hirschberg’s algorithm only takes O(m) space by using binary recursion \cite{edit_distance_revisited}.
+\subsection{Hirschberg}
+Created in the mid-1970’s by Dan Hirschberg, Hirschberg’s algorithm is an improvement to the Needleman-Wunsch algorithm created at the beginning of that decade \cite{hirschberg_1975}. The goal of the algorithm is to find the optimal global sequence alignment of two strings. Hirschberg’s improvement on the Needleman-Wunsch algorithm comes from it being more spatially efficient. As stated in the above section, the runtime efficiency of Needleman-Wunsch is O(nm), where n and m are the lengths of the two strings respectively. Hirschberg’s algorithm has the same runtime. The difference is that Needleman-Wunsch uses O(nm) space, since it creates an n by m matrix, where n and m are the lengths of the sequences, whereas Hirschberg’s algorithm only takes O(min\{n,m\}) space by using binary recursion \cite{edit_distance_revisited}.
 
 \section{Experiments}
 
-This section describes in detail our attempts to parallelize the algorithms described above. All of our experiments are coded using Java.
+This section describes in detail our attempts to parallelize the algorithms described above. All of our experiments were coded using Java. Our experiments for the Needleman-Wunsch algorithm also applies to the Smith-Waterman algorithm since the latter is a slight variation of the former.
 
 \setcounter{subsection}{0}
 
@@ -319,7 +321,7 @@ We soon found that the problem with this implementation was that it would almost
 \subsubsection{Experiment 5}
 In Experiment 5, we attempt to parallelize the initialization of the score and traceback matrices. The first row and column of each matrix are initialized in the constructor. The cells in the first row and column of the score matrix is initialized incrementally based on the gap penalty. If the gap penalty is -5, for example, the first row and column would be as follows: 0, -5, -10, -15,  and so on. The first row of the traceback matrix is initialized with 'u' for up, and the first column is initialized with 'l' for left. Since the initializations of the rows and columns of the matrices are independent, we could use two threads to perform the initializations.
 
-In this experiment, we used two threads to initialize the score and traceback matrices. The first thread initializes the first row of each matrix. The second thread initializes the second row of each matrix. We tested the code on matrices of varying sizes, and the results are shown in Table~\ref{tab:table5}. Initializing 1000 x 1000 sized matrices with the parallel code did not lead to a speed up. The cost of creating the two threads was more than the benefits of parallelizing. However, once the matrix size reached 10,000 x 10,000, we started seeing a speed up. The parallel initialization here is about 1.2 times  faster than the sequential initialization.
+In this experiment, we used two threads to initialize the score and traceback matrices. The first thread initializes the first row of each matrix. The second thread initializes the second row of each matrix. We tested the code on matrices of varying sizes, and the results are shown in Table~\ref{tab:table5}. Initializing 1000 x 1000 sized matrices with the parallel code did not lead to a speed up. The cost of creating the two threads outweighed the benefits of parallelizing. However, once the matrix size reached 10,000 x 10,000, we started seeing a speed up. The parallel initialization here is about 1.2 times  faster than the sequential initialization.
 
 \begin{table}[]
 \caption{Experiment 5 results.}
@@ -336,8 +338,15 @@ In this experiment, we used two threads to initialize the score and traceback ma
 \end{tabular}
 \end{table}
 
+\section{Others' Implementations}
+We looked at some other parallel implementations of the Needleman-Wunsch algorithm that are on GitHub. Most of the implementations were coded in C++ and none were in Java. We thought that maybe the performance would be better in C++. So we ran them to compare the results. The results were similar to ours in that the sequential runtimes were better than the parallel runtimes. One implementation, in particular, is the NW-Parallel project from blakeklasing \cite{blakeklasing}. This implementation was different from ours in that it made use of pools, which was implemented using vectors. We used 2D arrays to represent our matrices. The author initially calculates the first cell, which represents the first anti-diagonal. Once that is done, two items are added to the pool representing the cells below and to the right of the the first cell. Those cells are then calculated. The process continues until all the cells are calculated. The author has a lock-based and lock-free parallel implementation. The lock-based one ran faster than the lock-free one. However, the sequential one ran faster than both parallel ones.
+
+In another implementation, Lee, Kim, and Uy attempted to parallelize and speed up the Needleman-Wunsch algorithm using CUDA. They described their process and results in their paper \cite{lee_kim_uy_2020}. For their serial implementation, they used Java and ran it on a CPU. For their parallel version, they used CUDA C/C++ and ran it on both a CPU and GPU using the anti-diagonal technique. Here, they used vectors to represent the matrices. In the end, they found that their parallel implementation performed three times better than their parallel implementation. So it seems that in order to be able to successfully parallelize the Needleman-Wunsch algorithm, we must make use of a GPU.
+
 \section{Conclusion}
-The calculation of the matrix scores for the Needleman-Wunsch and Smith-Waterman algorithms can only be parallelized within each anti-diagonal. Threads have to be blocked from moving on to the next anti-diagonal until the current anti-diagonal is filled in. In our experiments, we find that the overhead of parallelizing this way wins over the benefits of parallelization. Additionally, increasing the size of the input sequences means increasing the number of anti-diagonals that need to be processed. And the more anti-diagonals there are, the more overhead that is involved. So, it seems that the current heuristic approaches being used right now are the best solutions to the sequence alignment problem even though they do not always return the exact most optimal solutions.
+We were able to successfully parallelize the initialization of the matrices in the Needleman-Wunsch algorithm by using different threads to fill in the first rows and the first columns. We were not able to improve performance by parallelizing the calculation of the matrix scores, however.
+
+The calculation of the matrix scores for the Needleman-Wunsch and Smith-Waterman algorithms can only be parallelized within each anti-diagonal. Threads have to be blocked from moving on to the next anti-diagonal until the current anti-diagonal is filled in. In our experiments, we found that the overhead of parallelizing this way wins over the benefits of parallelization. Additionally, increasing the size of the input sequences means increasing the number of anti-diagonals that need to be processed. And the more anti-diagonals there are, the more overhead that is involved. So, it seems that the current heuristic approaches being used right now are the best solutions to the sequence alignment problem even though they do not always return the exact most optimal solutions.
 
 \bibliographystyle{IEEEtran}
 \bibliography{IEEEabrv,References}
