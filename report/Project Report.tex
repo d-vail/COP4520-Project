@@ -44,7 +44,7 @@ The following is an example sequence alignment for the sequences TCGATA and AGAT
 
 \hspace*{1em}TCGATA\\
 \hspace*{2em}–AGATC\\
- 
+
 The dash before the letter A in the second sequence in the alignment represents a gap. Gaps are indicative of insertions or deletions. Sequences may have been the same at some point in time and ended up diverging through mutations involving substitutions, insertions, or deletions \cite{settles_2008}. For example, the second sequence above could have undergone a mutation where T (the first letter) was deleted and C (the second letter) was substituted with an A.
 
 Another possible alignment for the sequences above is as follows:\\
@@ -120,7 +120,7 @@ To demonstrate, in the score matrix below in Fig.~\ref{6}, the score for row 2 c
 The scoring matrix is initialized by setting the top uppermost leftmost cell to 0. The gap penalty is then added incrementally both along the first row and first column. For example, in Fig.~\ref{6}, where the gap penalty is -2, the scores along the first row are 0, -2, -4, -6, -8, and so on. The scores along the first column are the same. These scores indicate the overall score for appending gaps to the beginning of each sequence. For instance, adding two gaps to the beginning of the left sequence above produces -{}-ACGCATCA. The corresponding score for this alignment is -4 since row 3 column 1 is -4.
 
 Once all of the scores in the score matrix and the directions in the traceback matrix have been determined, the traceback matrix is used to produce the most optimal alignment between the two sequences. The traceback begins at the bottommost rightmost cell. The trace then moves either left, up, or diagonally from that point on. Movement is based on the direction stored in the traceback matrix. Moving left means adding a gap to the sequence on the left of the matrix. Moving up means adding a gap to the sequence at the top of the matrix. And moving diagonally means that the two letters for that cell are aligned and no gap is to be added. The traceback ends when the topmost leftmost cell is reached. Fig.~\ref{7} shows an example traceback matrix and its final path. The corresponding optimal alignment for the sequences SEND and AND is as follows:\\
- 
+
 \hspace*{1em}SEND\\
 \hspace*{2em}A–ND
 
@@ -154,6 +154,8 @@ The Smith-Waterman algorithm is used to find the optimal local alignment between
 
 \subsection{Hirschberg}
 Created in the mid-1970’s by Dan Hirschberg, Hirschberg’s algorithm is an improvement to the Needleman-Wunsch algorithm created at the beginning of that decade \cite{hirschberg_1975}. The goal of the algorithm is to find the optimal global sequence alignment of two strings. Hirschberg’s improvement on the Needleman-Wunsch algorithm comes from it being more spatially efficient. As stated in the above section, the runtime efficiency of Needleman-Wunsch is O(nm), where n and m are the lengths of the two strings respectively. Hirschberg’s algorithm has the same runtime. The difference is that Needleman-Wunsch uses O(nm) space, since it creates an n by m matrix, where n and m are the lengths of the sequences, whereas Hirschberg’s algorithm only takes O(min\{n,m\}) space by using binary recursion \cite{edit_distance_revisited}.
+
+The process that Hirschberg’s uses to achieve O(min{n, m}) is by using recursion with a divide and conquer approach. The first string (of length n) is cut in half. The second string (of length m) is cut in the spot that corresponds to where the first string is cut. The algorithm then does a recursive call on each set of substrings until it has gone through the entire strings, with the scoring starting at each end of the strings and meeting in the middle.
 
 \section{Experiments}
 
@@ -337,6 +339,17 @@ In this experiment, we used two threads to initialize the score and traceback ma
               & \textit{Run 2} & 311827281 ns & 243780913 ns & 1.2791293  \\ \hline
 \end{tabular}
 \end{table}
+
+\subsection{Hirschberg}
+In this expirement, we attempted to implement a parallelized version of Hirschberg's algorithm. We attempted to create a Java program to implement a standard psuedocode of the algorithm \cite{hirschbergPsuedoCode}. We completed the sequential version, but unfortunately were unable to get a parallel version of Hirschberg's algorithm to work. The idea was to modify the sequential version to support multithreading. We would create a thread each time the strings were split so that the each thread would process the recursive call on each substring. After some time, we realized that our approach was not possible to implement, at least in Java. Fig.~\ref{16} shows the portion of the code where we attempted to parallelize. One thread would run the first line in the figure, while another would run the second.
+
+The problem that was run into was that although it was ideal that it used a divide and conquer approach to split the work into two different calls, we were unable to test as it was necessary to pass in parameters and Java does not support arguments to the run function. Even with not being to test it was still unlikely to give a performance increase since all the recursive calls would result in an overload of threads, slowing down performance.
+
+\begin{figure}[htbp]
+\centerline{\scalebox{.53}{\includegraphics{Figures/16.png}}}
+\caption{Portion of Hirschberg Experiment code.}
+\label{16}
+\end{figure}
 
 \section{Others' Implementations}
 We looked at some other parallel implementations of the Needleman-Wunsch algorithm that are on GitHub. Most of the implementations were coded in C++ and none were in Java. We thought that maybe the performance would be better in C++. So we ran them to compare the results. The results were similar to ours in that the sequential runtimes were better than the parallel runtimes. One implementation, in particular, is the NW-Parallel project from blakeklasing \cite{blakeklasing}. This implementation was different from ours in that it made use of pools, which was implemented using vectors. We used 2D arrays to represent our matrices. The author initially calculates the first cell, which represents the first anti-diagonal. Once that is done, two items are added to the pool representing the cells below and to the right of the the first cell. Those cells are then calculated. The process continues until all the cells are calculated. The author has a lock-based and lock-free parallel implementation. The lock-based one ran faster than the lock-free one. However, the sequential one ran faster than both parallel ones.
