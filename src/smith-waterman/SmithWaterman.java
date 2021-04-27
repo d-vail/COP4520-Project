@@ -1,4 +1,3 @@
-// Example TGTTACGG GGTTGACTA
 public class SmithWaterman
 {
   private static final char HYPHEN = '-';
@@ -83,33 +82,42 @@ public class SmithWaterman
       }
     }
 
-    // Build alignment result starting from the highest score.
+    // // Build alignment result starting from the highest score.
     Alignment result = new Alignment();
     int count = 0;
 
     while (scoreMatrix[iMax][jMax] > 0)
     {
-      int iTemp = iMax;
-      int jTemp = jMax;
-  
-      if (scoreMatrix[iTemp - 1][jTemp] <= scoreMatrix[iTemp][jTemp])
-      {
-        result.addA(seqA.charAt(jTemp - 1));
+      int diagonal = scoreMatrix[iMax - 1][jMax - 1];
+      int up = scoreMatrix[iMax - 1][jMax];
+      int left = scoreMatrix[iMax][jMax - 1];
+
+      // Found match. Move diagonally.
+      if (diagonal >= up && diagonal >= left) {
+        result.addA(seqA.charAt(jMax - 1));
+        result.addB(seqB.charAt(iMax - 1));
+        iMax -= 1;
         jMax -= 1;
-      }
-      else 
-      {
-         result.addA(HYPHEN);
+
+        continue;
       }
 
-      if (scoreMatrix[iTemp][jTemp - 1] <= scoreMatrix[iTemp][jTemp])
-      {
-        result.addB(seqB.charAt(iTemp - 1));
+      // Moving up == Mismatch. Add gap to second sequence.
+      if (up > diagonal && up >= left) {
+        result.addA(HYPHEN);
+        result.addB(seqB.charAt(iMax - 1));
         iMax -= 1;
+
+        continue;
       }
-      else
-      {
+
+      // Moving to the left == Mismatch. Add gap to first sequence.
+      if (left > diagonal && left > up) {
         result.addB(HYPHEN);
+        result.addA(seqA.charAt(jMax - 1));
+        jMax -= 1;
+
+        continue;
       }
     }
 
@@ -130,8 +138,8 @@ public class SmithWaterman
       return;
     }
 
-    String seqA = args[0];
-    String seqB = args[1];
+    String seqA = args[0].toUpperCase();
+    String seqB = args[1].toUpperCase();
     int gapPenalty = 2;
 
     Alignment result = smithWaterman(seqA, seqB, SubstitutionMatrixType.IDENTITY, 
