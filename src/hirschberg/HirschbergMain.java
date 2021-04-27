@@ -2,10 +2,6 @@
  * HirschbergMain.java
 **/
 
-package core;
-
-import core.Hirschberg;
-
 import java.io.*;
 import java.util.*;
 

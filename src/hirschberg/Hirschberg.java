@@ -1,12 +1,10 @@
 /**
- * HirschbergParallel.java
+ * Hirschberg.java
 **/
-
-package core;
 
 import java.util.*;
 
-public class HirschbergParallel implements Runnable
+public class Hirschberg
 {
     public String seq1;
     public String seq2;
@@ -15,16 +13,14 @@ public class HirschbergParallel implements Runnable
     public int gap;
     public int lastColIndex, lastRowIndex;
     public int split;
-    public int numThreads;
     public int[] retLine;
     public int[][] score;
     public String haRetLong;
     public String[] nwRet = new String[2];
     public String[] haRet = new String[2];
     public String[] optSeqs;
-    public ArrayList<Thread> thList;
 
-    public HirschbergParallel(String seq1, String seq2, int match, int mismatch, int gap)
+    public Hirschberg(String seq1, String seq2, int match, int mismatch, int gap)
     {
         this.seq1 = seq1;
         this.seq2 = seq2;
@@ -36,10 +32,9 @@ public class HirschbergParallel implements Runnable
         this.optSeqs = new String[2];
         this.optSeqs[0] = new String();
         this.optSeqs[1] = new String();
-        this.thList = new ArrayList<Thread>();
     }
 
-    public String HirschbergParallelAlgorithm(String seq1, String seq2)
+    public String HirschbergAlgorithm(String seq1, String seq2)
     {
         char[] s1 = new char[seq1.length()];
         char[] s2 = new char[seq2.length()];
@@ -104,11 +99,8 @@ public class HirschbergParallel implements Runnable
                 }
             }
 
-            //Thread th1 = new Thread();
-            //thList.add(th1);
-            //th1.start(seq1a, seq2.substring(0, mid + 1));
-            String haRet0 = HirschbergParallelAlgorithm(seq1a, seq2.substring(0, mid + 1));
-            String haRet1 = HirschbergParallelAlgorithm(seq1b, seq2.substring(mid + 1));
+            String haRet0 = HirschbergAlgorithm(seq1a, seq2.substring(0, mid + 1));
+            String haRet1 = HirschbergAlgorithm(seq1b, seq2.substring(mid + 1));
             haRet[0] = haRet0;
             haRet[1] = haRet1;
 
@@ -230,12 +222,5 @@ public class HirschbergParallel implements Runnable
             this.optSeqs[1] = this.optSeqs[1] + seq2.charAt(i - 1);
         }
     }
-
-    @Override
-    public void run()
-    {
-        //HirschbergParallelAlgorithm(seq1, seq2);
-    }
-
 
 }
